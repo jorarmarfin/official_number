@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Document;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,8 +17,9 @@ class DocumentMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
+    public function __construct(
+        public Document $document
+    ) {
         //
     }
 
@@ -27,7 +29,7 @@ class DocumentMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Document Mail',
+            subject: 'OFICIOS NRO ' . $this->document->range,
         );
     }
 
@@ -37,7 +39,7 @@ class DocumentMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.document',
         );
     }
 

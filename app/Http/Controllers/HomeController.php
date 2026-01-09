@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\DocumentMail;
 use App\Models\Document;
 use App\Models\Year;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class HomeController extends Controller
 {
@@ -43,9 +45,13 @@ class HomeController extends Controller
             $init_number = 0;
         }
         $end_number = $init_number + $validated['cantidad_oficios'];
-        $range = implode(', ', range($init_number + 1, $end_number));
+        $range = implode(', ', array_map(
+            fn($n) => str_pad($n, 4, '0', STR_PAD_LEFT),
+            range($init_number + 1, $end_number)
+        ));
 
-        Document::create([
+
+        $document = Document::create([
             'year_id' => $year_active->id,
             'subject' => $validated['asunto'],
             'quantity' => $validated['cantidad_oficios'],
@@ -55,6 +61,15 @@ class HomeController extends Controller
             'recipient_email' => $validated['email'],
         ]);
 
+        // Validar que el documento se guardó correctamente antes de enviar el email
+        if ($document && $document->exists) {
+            try {
+                Mail::to($validated['email'])->queue(new DocumentMail($document));
+            } catch (\Exception $e) {
+                return redirect()->route('welcome')
+                    ->with('warning', 'El documento se creó correctamente, pero hubo un problema al enviar el correo electrónico.');
+            }
+        }
 
         return redirect()->route('welcome')->with('success', 'Su solicitud ha sido recibida correctamente. Pronto recibirá una respuesta en su correo electrónico.');
     }

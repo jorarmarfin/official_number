@@ -49,14 +49,22 @@ class DocumentResource extends Resource
         return $table
             ->recordTitleAttribute('subject')
             ->columns([
-                TextColumn::make('year_id')
-                    ->numeric()
+                TextColumn::make('year.name')
                     ->sortable(),
                 TextColumn::make('subject')
                     ->searchable(),
                 TextColumn::make('quantity')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('start_number')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('end_number')
+                    ->numeric()
+                    ->sortable(),
+                TextColumn::make('range')
+                    ->searchable(),
+
                 TextColumn::make('recipient_email')
                     ->searchable(),
                 TextColumn::make('created_at')
